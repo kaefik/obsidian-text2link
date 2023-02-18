@@ -37,8 +37,9 @@ export default class MyPlugin extends Plugin {
 			name: 'One line convert text to link',
 			editorCallback: (editor: Editor, view: MarkdownView) => {				
 				var cur_text = editor.getSelection()
+				var cur_text_link = encodeURIComponent(cur_text.trim())
 				console.log(cur_text);
-				cur_text = `[${cur_text}](${cur_text})`
+				cur_text = `[${cur_text}](${cur_text_link})`
 				editor.replaceSelection(cur_text);
 			}
 		});

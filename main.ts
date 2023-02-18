@@ -4,11 +4,13 @@ import { text } from 'stream/consumers';
 // Remember to rename these classes and interfaces!
 
 interface Text2LinkSettings {
-	mySetting: string;
+	subFolders: string;
+	wikiLinks: boolean; // wiki линки типа [[WikiLinks]]
 }
 
 const DEFAULT_SETTINGS: Text2LinkSettings = {
-	mySetting: 'default'
+	subFolders: '',
+	wikiLinks: false
 }
 
 export default class MyPlugin extends Plugin {
@@ -38,8 +40,9 @@ export default class MyPlugin extends Plugin {
 			editorCallback: (editor: Editor, view: MarkdownView) => {				
 				var cur_text = editor.getSelection()
 				var cur_text_link = encodeURIComponent(cur_text.trim())
+				var subfolder_link = encodeURIComponent(this.settings.subFolders.trim())
 				console.log(cur_text);
-				cur_text = `[${cur_text}](${cur_text_link})`
+				cur_text = `[${cur_text}](${subfolder_link}/${cur_text_link})`
 				editor.replaceSelection(cur_text);
 			}
 		});
@@ -166,18 +169,31 @@ class SampleSettingTab extends PluginSettingTab {
 
 		containerEl.empty();
 
-		containerEl.createEl('h2', {text: 'Settings for my awesome plugin.'});
+		containerEl.createEl('h2', {text: 'Settings for Text2Link converter plugin.'});
 
 		new Setting(containerEl)
-			.setName('Setting #1')
-			.setDesc('It\'s a secret')
+			.setName('Subfolder name')
+			.setDesc('If your file is under "vault/folder" and you set subfolder name to "pages", links path will create "vault/folder/pages".')
 			.addText(text => text
-				.setPlaceholder('Enter your secret')
-				.setValue(this.plugin.settings.mySetting)
+				.setPlaceholder('Enter links subfolder')
+				.setValue(this.plugin.settings.subFolders)
 				.onChange(async (value) => {
-					console.log('Secret: ' + value);
-					this.plugin.settings.mySetting = value;
+					console.log('subFolder: ' + value);
+					this.plugin.settings.subFolders = value;
 					await this.plugin.saveSettings();
 				}));
+		
+			// new Setting(containerEl)
+			// .setName('Use [[WikiLinks]]')
+			// .setDesc('If .')
+			// .addText(text => text
+			// 	.setPlaceholder('Enable for using wikilinks')
+			// 	.setValue(this.plugin.settings.wikiLinks)
+			// 	.onChange(async (value) => {
+			// 		console.log('Flag wikilinks: ' + value);
+			// 		this.plugin.settings.wikiLinks = value;
+			// 		await this.plugin.saveSettings();
+			// 	}));
+	
 	}
 }

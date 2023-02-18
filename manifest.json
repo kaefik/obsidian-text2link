@@ -1,0 +1,11 @@
+{
+	"id": "text2link",
+	"name": "Text2Link converter",
+	"version": "1.0.0",
+	"minAppVersion": "0.15.0",
+	"description": "convert selected text to markdown link(s)",
+	"author": "Ilnur Saifutdinov",
+	"authorUrl": "https://github.com/kaefik",
+	"fundingUrl": "https://github.com/kaefik",
+	"isDesktopOnly": false
+}

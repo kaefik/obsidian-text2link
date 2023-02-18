@@ -44,6 +44,36 @@ export default class MyPlugin extends Plugin {
 			}
 		});
 
+		// добавление команды который выделение из одного выделенного блока текста 
+		//  делает ссылку на страницу с этим названием но каждую строку 
+		// которая завершается \n отдельная страница
+		this.addCommand({
+			id: 'many-convert-text2link',
+			name: 'Many line convert text to links',
+			editorCallback: (editor: Editor, view: MarkdownView) => {				
+				var many_cur_text = editor.getSelection()
+
+				var arr_sur_text = many_cur_text.split('\n')
+
+				console.log(arr_sur_text)
+
+				for(var index in arr_sur_text)
+					{ 
+						var cur_text = arr_sur_text[index].trim()
+						if (cur_text != '') {
+							var cur_text_link = encodeURIComponent(cur_text.trim())
+							console.log(cur_text);
+							cur_text = `[${cur_text}](${cur_text_link})\n`
+							editor.replaceSelection(cur_text);
+						}
+					}
+
+				
+
+			}
+		});
+
+
 		// // This adds a simple command that can be triggered anywhere
 		// this.addCommand({
 		// 	id: 'open-sample-modal-simple',

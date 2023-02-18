@@ -65,8 +65,9 @@ export default class MyPlugin extends Plugin {
 						var cur_text = arr_sur_text[index].trim()
 						if (cur_text != '') {
 							var cur_text_link = encodeURIComponent(cur_text.trim())
+							var subfolder_link = encodeURIComponent(this.settings.subFolders.trim())
 							console.log(cur_text);
-							cur_text = `[${cur_text}](${cur_text_link})\n`
+							cur_text = `[${cur_text}](${subfolder_link}/${cur_text_link})\n`
 							editor.replaceSelection(cur_text);
 						}
 					}

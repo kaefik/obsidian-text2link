@@ -1,4 +1,5 @@
 import { App, Editor, MarkdownView, Modal, Notice, Plugin, PluginSettingTab, Setting } from 'obsidian';
+import { basename } from 'path';
 import { text } from 'stream/consumers';
 
 // Remember to rename these classes and interfaces!
@@ -37,11 +38,22 @@ export default class MyPlugin extends Plugin {
 		this.addCommand({
 			id: 'one-convert-text2link',
 			name: 'One line convert text to link',
-			editorCallback: (editor: Editor, view: MarkdownView) => {				
+			editorCallback: (editor: Editor, view: MarkdownView) => {	
+				
+				// получаем информацию об активном окне редакторе (т.е. о текущей заметке)
+				var cur_file = this.app.workspace.activeEditor.file
+
+				var cur_path = cur_file.path
+				var cur_filename = cur_file.name
+				// получаем текущую папку в vault
+				var cur_onlypath = cur_file.parent.path
+				// console.log("Current File: ")
+				// console.log(cur_onlypath)
+
 				var cur_text = editor.getSelection()
 				var cur_text_link = encodeURIComponent(cur_text.trim())
-				var subfolder_link = encodeURIComponent(this.settings.subFolders.trim())
-				console.log(cur_text);
+				var subfolder_link = cur_onlypath + "/"+encodeURIComponent(this.settings.subFolders.trim())
+				// console.log(cur_text);
 				cur_text = `[${cur_text}](${subfolder_link}/${cur_text_link})`
 				editor.replaceSelection(cur_text);
 			}
@@ -54,9 +66,19 @@ export default class MyPlugin extends Plugin {
 			id: 'many-convert-text2link',
 			name: 'Many line convert text to links',
 			editorCallback: (editor: Editor, view: MarkdownView) => {				
+				// получаем информацию об активном окне редакторе (т.е. о текущей заметке)
+				var cur_file = this.app.workspace.activeEditor.file
+				var cur_path = cur_file.path
+				var cur_filename = cur_file.name
+				// получаем текущую папку в vault
+				var cur_onlypath = cur_file.parent.path
+				// console.log("Current File: ")
+				// console.log(cur_onlypath)
+				
 				var many_cur_text = editor.getSelection()
-
 				var arr_sur_text = many_cur_text.split('\n')
+				
+				var subfolder_link = cur_onlypath + "/"+encodeURIComponent(this.settings.subFolders.trim())
 
 				console.log(arr_sur_text)
 
@@ -64,8 +86,7 @@ export default class MyPlugin extends Plugin {
 					{ 
 						var cur_text = arr_sur_text[index].trim()
 						if (cur_text != '') {
-							var cur_text_link = encodeURIComponent(cur_text.trim())
-							var subfolder_link = encodeURIComponent(this.settings.subFolders.trim())
+							var cur_text_link = encodeURIComponent(cur_text.trim())							
 							console.log(cur_text);
 							cur_text = `[${cur_text}](${subfolder_link}/${cur_text_link})\n`
 							editor.replaceSelection(cur_text);

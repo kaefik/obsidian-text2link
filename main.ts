@@ -40,6 +40,7 @@ export default class MyPlugin extends Plugin {
 			name: 'One line convert text to link',
 			editorCallback: (editor: Editor, view: MarkdownView) => {	
 				
+				// console.log("Flag wiki links = ", this.settings.wikiLinks)
 				// получаем информацию об активном окне редакторе (т.е. о текущей заметке)
 				var cur_file = this.app.workspace.activeEditor.file
 
@@ -52,10 +53,16 @@ export default class MyPlugin extends Plugin {
 
 				var cur_text = editor.getSelection()
 				var cur_text_link = encodeURIComponent(cur_text.trim())
-				var subfolder_link = cur_onlypath + "/"+encodeURIComponent(this.settings.subFolders.trim())
-				// console.log(cur_text);
-				cur_text = `[${cur_text}](${subfolder_link}/${cur_text_link})`
-				editor.replaceSelection(cur_text);
+
+				if (this.settings.wikiLinks) {
+					console.log("Create wiki links")
+				} else {
+					console.log("Create Markdown links")
+					var subfolder_link = cur_onlypath + "/"+encodeURIComponent(this.settings.subFolders.trim())
+					// console.log(cur_text);
+					cur_text = `[${cur_text}](${subfolder_link}/${cur_text_link})`
+					editor.replaceSelection(cur_text);
+				}
 			}
 		});
 
@@ -92,9 +99,6 @@ export default class MyPlugin extends Plugin {
 							editor.replaceSelection(cur_text);
 						}
 					}
-
-				
-
 			}
 		});
 
@@ -205,17 +209,16 @@ class SampleSettingTab extends PluginSettingTab {
 					await this.plugin.saveSettings();
 				}));
 		
-			// new Setting(containerEl)
-			// .setName('Use [[WikiLinks]]')
-			// .setDesc('If .')
-			// .addText(text => text
-			// 	.setPlaceholder('Enable for using wikilinks')
-			// 	.setValue(this.plugin.settings.wikiLinks)
-			// 	.onChange(async (value) => {
-			// 		console.log('Flag wikilinks: ' + value);
-			// 		this.plugin.settings.wikiLinks = value;
-			// 		await this.plugin.saveSettings();
-			// 	}));
-	
+		new Setting(containerEl)
+			.setName('Use [[WikiLinks]]')
+			.setDesc('If .')
+			.addToggle((toggle) => {
+				toggle.setValue(this.plugin.settings.wikiLinks);
+				toggle.onChange(async (value) => {
+					this.plugin.settings.wikiLinks = value;
+					await this.plugin.saveSettings();
+					});
+				});
+
 	}
 }

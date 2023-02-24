@@ -24,7 +24,12 @@ export default class MyPlugin extends Plugin {
 		var cur_path = cur_file.path
 		var cur_filename = cur_file.name
 
-		var cur_text = editor.getSelection()
+		let cur_text = editor.getSelection()
+
+		if (cur_text == "") { 
+			console.log("Empty line")
+			return
+		}
 
 		if (this.settings.wikiLinks) {
 			console.log("Create wiki links")
@@ -88,6 +93,8 @@ export default class MyPlugin extends Plugin {
 						cur_text = `[${cur_text}](${subfolder_link}/${cur_text_link})\n`					
 					}
 					editor.replaceSelection(cur_text);
+				} else {
+					editor.replaceSelection("\n");
 				}
 			}
 	}

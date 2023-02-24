@@ -1,4 +1,4 @@
-import { App, Editor, MarkdownView, Modal, Notice, Plugin, PluginSettingTab, Setting, Menu } from 'obsidian';
+import { App, Editor, MarkdownView, Modal, Notice, Plugin, PluginSettingTab, Setting, Menu, View } from 'obsidian';
 import { basename } from 'path';
 import { text } from 'stream/consumers';
 
@@ -17,11 +17,86 @@ const DEFAULT_SETTINGS: Text2LinkSettings = {
 export default class MyPlugin extends Plugin {
 	settings: Text2LinkSettings;
 
+	// обработка одной строки текста, превращение его в ссылку
+	async oneline2link(editor: Editor, view: MarkdownView){
+		// получаем информацию об активном окне редакторе (т.е. о текущей заметке)
+		var cur_file = this.app.workspace.activeEditor.file
+		var cur_path = cur_file.path
+		var cur_filename = cur_file.name
+
+		var cur_text = editor.getSelection()
+
+		if (this.settings.wikiLinks) {
+			console.log("Create wiki links")
+			var cur_text_link = cur_text.trim()
+			var cur_onlypath = cur_file.parent.path
+			var subfolder_link = cur_onlypath + "/"+this.settings.subFolders.trim()
+			console.log("subfolder_link: ", subfolder_link)
+
+			cur_text = `[[${subfolder_link}/${cur_text_link}|${cur_text}]]`
+
+		} else {
+			console.log("Create Markdown links")			
+			var cur_text_link = encodeURIComponent(cur_text.trim())				
+			var cur_onlypath = cur_file.parent.path.split(' ').join('%20');
+			console.log("Current File: ")
+			console.log(cur_onlypath)
+			var subfolder_link = cur_onlypath + "/"+encodeURIComponent(this.settings.subFolders.trim())
+			
+			cur_text = `[${cur_text}](${subfolder_link}/${cur_text_link})`					
+		}
+		editor.replaceSelection(cur_text);
+	}
+
+	// обработка нескорльких строк текста, превращение их в ссылки
+	async multiline2link(editor: Editor, view: MarkdownView){
+		// получаем информацию об активном окне редакторе (т.е. о текущей заметке)
+		var cur_file = this.app.workspace.activeEditor.file
+		var cur_path = cur_file.path
+		var cur_filename = cur_file.name
+		// получаем текущую папку в vault
+		var cur_onlypath = cur_file.parent.path
+		// console.log("Current File: ")
+		// console.log(cur_onlypath)
+		
+		var many_cur_text = editor.getSelection()
+		var arr_sur_text = many_cur_text.split('\n')
+
+		console.log(arr_sur_text)
+
+		for(var index in arr_sur_text)
+			{ 
+				var cur_text = arr_sur_text[index].trim()
+				if (cur_text != '') {
+					if (this.settings.wikiLinks) {
+						console.log("Create wiki links")
+						var cur_text_link = cur_text.trim()
+						var cur_onlypath = cur_file.parent.path
+						var subfolder_link = cur_onlypath + "/"+this.settings.subFolders.trim()
+						console.log("subfolder_link: ", subfolder_link)
+	
+						cur_text = `[[${subfolder_link}/${cur_text_link}|${cur_text}]]\n`
+	
+					} else {
+						console.log("Create Markdown links")			
+						var cur_text_link = encodeURIComponent(cur_text.trim())				
+						var cur_onlypath = cur_file.parent.path.split(' ').join('%20');
+						console.log("Current File: ")
+						console.log(cur_onlypath)
+						var subfolder_link = cur_onlypath + "/"+encodeURIComponent(this.settings.subFolders.trim())
+						
+						cur_text = `[${cur_text}](${subfolder_link}/${cur_text_link})\n`					
+					}
+					editor.replaceSelection(cur_text);
+				}
+			}
+	}
+
 	async onload() {
 		await this.loadSettings();
 
 		// This creates an icon in the left ribbon.
-		const ribbonIconEl = this.addRibbonIcon('dice', 'Text2Link Plugin', (evt: MouseEvent) => {
+		// const ribbonIconEl = this.addRibbonIcon('dice', 'Text2Link Plugin', (evt: MouseEvent) => {
 			// Called when the user clicks the icon.
 			// const menu = new Menu(this.app);
 
@@ -36,53 +111,38 @@ export default class MyPlugin extends Plugin {
 
 			// menu.showAtMouseEvent(evt);
 
-			new Notice('This is a notice!');
-		});
+			// new Notice('This is a notice!');
+		// });
 		// Perform additional things with the ribbon
-		ribbonIconEl.addClass('my-plugin-ribbon-class');
+		// ribbonIconEl.addClass('my-plugin-ribbon-class');
 
 		// добавление в контексное меню редактора 
 		this.registerEvent(
 			this.app.workspace.on("editor-menu", (menu, editor, view) => {
 			  menu.addItem((item) => {
 				item
-				  .setTitle("One line convert Text2Link")
+				  .setTitle("One line convert to link")
 				  .setIcon("document")
 				  .onClick(async () => {
-					// console.log("Flag wiki links = ", this.settings.wikiLinks)
-				// получаем информацию об активном окне редакторе (т.е. о текущей заметке)
-				var cur_file = this.app.workspace.activeEditor.file
-
-				var cur_path = cur_file.path
-				var cur_filename = cur_file.name
-
-				var cur_text = editor.getSelection()
-
-				if (this.settings.wikiLinks) {
-					console.log("Create wiki links")
-					var cur_text_link = cur_text.trim()
-					var cur_onlypath = cur_file.parent.path
-					var subfolder_link = cur_onlypath + "/"+this.settings.subFolders.trim()
-					console.log("subfolder_link: ", subfolder_link)
-
-					cur_text = `[[${subfolder_link}/${cur_text_link}|${cur_text}]]`
-
-				} else {
-					console.log("Create Markdown links")			
-					var cur_text_link = encodeURIComponent(cur_text.trim())				
-					var cur_onlypath = cur_file.parent.path.split(' ').join('%20');
-					console.log("Current File: ")
-					console.log(cur_onlypath)
-					var subfolder_link = cur_onlypath + "/"+encodeURIComponent(this.settings.subFolders.trim())
-					
-					cur_text = `[${cur_text}](${subfolder_link}/${cur_text_link})`					
-				}
-				editor.replaceSelection(cur_text);
+					await this.oneline2link(editor, view)				
 				  });
 			  });
 			})
 		  );
-		
+
+		this.registerEvent(
+		this.app.workspace.on("editor-menu", (menu, editor, view) => {
+			menu.addItem((item) => {
+			item
+				.setTitle("Multi lines convert to links")
+				.setIcon("document")
+				.onClick(async () => {
+				await this.multiline2link(editor, view)
+				});
+			});
+		})
+		);
+	
 
 		// This adds a status bar item to the bottom of the app. Does not work on mobile apps.
 		// const statusBarItemEl = this.addStatusBarItem();
@@ -94,37 +154,8 @@ export default class MyPlugin extends Plugin {
 		this.addCommand({
 			id: 'one-convert-text2link',
 			name: 'One line convert text to link',
-			editorCallback: (editor: Editor, view: MarkdownView) => {	
-				
-				// console.log("Flag wiki links = ", this.settings.wikiLinks)
-				// получаем информацию об активном окне редакторе (т.е. о текущей заметке)
-				var cur_file = this.app.workspace.activeEditor.file
-
-				var cur_path = cur_file.path
-				var cur_filename = cur_file.name
-
-				var cur_text = editor.getSelection()
-
-				if (this.settings.wikiLinks) {
-					console.log("Create wiki links")
-					var cur_text_link = cur_text.trim()
-					var cur_onlypath = cur_file.parent.path
-					var subfolder_link = cur_onlypath + "/"+this.settings.subFolders.trim()
-					console.log("subfolder_link: ", subfolder_link)
-
-					cur_text = `[[${subfolder_link}/${cur_text_link}|${cur_text}]]`
-
-				} else {
-					console.log("Create Markdown links")			
-					var cur_text_link = encodeURIComponent(cur_text.trim())				
-					var cur_onlypath = cur_file.parent.path.split(' ').join('%20');
-					console.log("Current File: ")
-					console.log(cur_onlypath)
-					var subfolder_link = cur_onlypath + "/"+encodeURIComponent(this.settings.subFolders.trim())
-					
-					cur_text = `[${cur_text}](${subfolder_link}/${cur_text_link})`					
-				}
-				editor.replaceSelection(cur_text);
+			editorCallback: (editor: Editor, view: MarkdownView) => {					
+				this.oneline2link(editor, view)
 			}
 		});
 
@@ -135,46 +166,7 @@ export default class MyPlugin extends Plugin {
 			id: 'many-convert-text2link',
 			name: 'Many line convert text to links',
 			editorCallback: (editor: Editor, view: MarkdownView) => {				
-				// получаем информацию об активном окне редакторе (т.е. о текущей заметке)
-				var cur_file = this.app.workspace.activeEditor.file
-				var cur_path = cur_file.path
-				var cur_filename = cur_file.name
-				// получаем текущую папку в vault
-				var cur_onlypath = cur_file.parent.path
-				// console.log("Current File: ")
-				// console.log(cur_onlypath)
-				
-				var many_cur_text = editor.getSelection()
-				var arr_sur_text = many_cur_text.split('\n')
-
-				console.log(arr_sur_text)
-
-				for(var index in arr_sur_text)
-					{ 
-						var cur_text = arr_sur_text[index].trim()
-						if (cur_text != '') {
-							if (this.settings.wikiLinks) {
-								console.log("Create wiki links")
-								var cur_text_link = cur_text.trim()
-								var cur_onlypath = cur_file.parent.path
-								var subfolder_link = cur_onlypath + "/"+this.settings.subFolders.trim()
-								console.log("subfolder_link: ", subfolder_link)
-			
-								cur_text = `[[${subfolder_link}/${cur_text_link}|${cur_text}]]\n`
-			
-							} else {
-								console.log("Create Markdown links")			
-								var cur_text_link = encodeURIComponent(cur_text.trim())				
-								var cur_onlypath = cur_file.parent.path.split(' ').join('%20');
-								console.log("Current File: ")
-								console.log(cur_onlypath)
-								var subfolder_link = cur_onlypath + "/"+encodeURIComponent(this.settings.subFolders.trim())
-								
-								cur_text = `[${cur_text}](${subfolder_link}/${cur_text_link})\n`					
-							}
-							editor.replaceSelection(cur_text);
-						}
-					}
+				this.multiline2link(editor, view)
 			}
 		});
 		

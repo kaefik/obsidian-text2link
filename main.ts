@@ -194,7 +194,7 @@ class SampleSettingTab extends PluginSettingTab {
 		
 		new Setting(containerEl)
 			.setName('Use [[WikiLinks]]')
-			.setDesc('If .')
+			.setDesc('Generate Wikilinks for [[links]] instead of Markdown links. Disable this opthion to generate Markdown links instead.')
 			.addToggle((toggle) => {
 				toggle.setValue(this.plugin.settings.wikiLinks);
 				toggle.onChange(async (value) => {

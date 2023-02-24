@@ -1,4 +1,4 @@
-import { App, Editor, MarkdownView, Modal, Notice, Plugin, PluginSettingTab, Setting } from 'obsidian';
+import { App, Editor, MarkdownView, Modal, Notice, Plugin, PluginSettingTab, Setting, Menu } from 'obsidian';
 import { basename } from 'path';
 import { text } from 'stream/consumers';
 
@@ -23,14 +23,70 @@ export default class MyPlugin extends Plugin {
 		// This creates an icon in the left ribbon.
 		const ribbonIconEl = this.addRibbonIcon('dice', 'Text2Link Plugin', (evt: MouseEvent) => {
 			// Called when the user clicks the icon.
+			// const menu = new Menu(this.app);
+
+			// menu.addItem((item) =>
+			// 	item
+			// 	.setTitle("CopyIlnur")
+			// 	.setIcon("documents")
+			// 	.onClick(() => {
+			// 		new Notice("Copied");
+			// 	})
+			// );
+
+			// menu.showAtMouseEvent(evt);
+
 			new Notice('This is a notice!');
 		});
 		// Perform additional things with the ribbon
 		ribbonIconEl.addClass('my-plugin-ribbon-class');
 
+		// добавление в контексное меню редактора 
+		this.registerEvent(
+			this.app.workspace.on("editor-menu", (menu, editor, view) => {
+			  menu.addItem((item) => {
+				item
+				  .setTitle("One line convert Text2Link")
+				  .setIcon("document")
+				  .onClick(async () => {
+					// console.log("Flag wiki links = ", this.settings.wikiLinks)
+				// получаем информацию об активном окне редакторе (т.е. о текущей заметке)
+				var cur_file = this.app.workspace.activeEditor.file
+
+				var cur_path = cur_file.path
+				var cur_filename = cur_file.name
+
+				var cur_text = editor.getSelection()
+
+				if (this.settings.wikiLinks) {
+					console.log("Create wiki links")
+					var cur_text_link = cur_text.trim()
+					var cur_onlypath = cur_file.parent.path
+					var subfolder_link = cur_onlypath + "/"+this.settings.subFolders.trim()
+					console.log("subfolder_link: ", subfolder_link)
+
+					cur_text = `[[${subfolder_link}/${cur_text_link}|${cur_text}]]`
+
+				} else {
+					console.log("Create Markdown links")			
+					var cur_text_link = encodeURIComponent(cur_text.trim())				
+					var cur_onlypath = cur_file.parent.path.split(' ').join('%20');
+					console.log("Current File: ")
+					console.log(cur_onlypath)
+					var subfolder_link = cur_onlypath + "/"+encodeURIComponent(this.settings.subFolders.trim())
+					
+					cur_text = `[${cur_text}](${subfolder_link}/${cur_text_link})`					
+				}
+				editor.replaceSelection(cur_text);
+				  });
+			  });
+			})
+		  );
+		
+
 		// This adds a status bar item to the bottom of the app. Does not work on mobile apps.
-		const statusBarItemEl = this.addStatusBarItem();
-		statusBarItemEl.setText('Status Bar Text');
+		// const statusBarItemEl = this.addStatusBarItem();
+		// statusBarItemEl.setText('Status Bar Text');
 
 
 		// добавление команды который выделение из одного выделенного блока текста 
@@ -128,9 +184,9 @@ export default class MyPlugin extends Plugin {
 
 		// If the plugin hooks up any global DOM events (on parts of the app that doesn't belong to this plugin)
 		// Using this function will automatically remove the event listener when this plugin is disabled.
-		this.registerDomEvent(document, 'click', (evt: MouseEvent) => {
-			console.log('click', evt);
-		});
+		// this.registerDomEvent(document, 'click', (evt: MouseEvent) => {
+		// 	console.log('click', evt);
+		// });
 
 		// When registering intervals, this function will automatically clear the interval when the plugin is disabled.
 		this.registerInterval(window.setInterval(() => console.log('setInterval'), 5 * 60 * 1000));

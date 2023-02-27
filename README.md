@@ -4,6 +4,8 @@ convert selected text to markdown link(s)
 
 
 
+![Using plugin Text2Link](Using plugin Text2Link.gif)
+
 ## How to use
 
 - Clone this repo.

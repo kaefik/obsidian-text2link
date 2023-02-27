@@ -4,7 +4,7 @@ convert selected text to markdown link(s)
 
 
 
-![Using plugin Text2Link](https://github.com/kaefik/obsidian-text2link/Using%20plugin%20Text2Link.gif)
+![Using plugin Text2Link](https://github.com/kaefik/obsidian-text2link/blob/main/Using%20plugin%20Text2Link.gif)
 
 ## How to use
 

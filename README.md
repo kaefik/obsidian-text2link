@@ -16,3 +16,27 @@ link for [russian README](https://github.com/kaefik/obsidian-text2link/blob/main
 
 - Copy over `main.js`, `styles.css`, `manifest.json` to your vault `VaultFolder/.obsidian/plugins/text2link/`.
 
+
+
+## Plugin modes
+
+### One-way mode
+
+command: Text2Link converter: One line convert to link
+
+when you select a word or several words and apply the command, the selected text turns into a markdown or wiki link of the form
+
+```markdown
+[Selected text](Selected%20text)
+```
+
+### Multiline mode
+
+command: Text2Link converter: Many line convert text to links
+
+turns each selected line into a markdown or wiki links to pages
+
+## Plugin settings
+
+- Subfolder name - if the parameter is empty, then a link to the page is generated, which should be in the current folder of the note in which the command is applied. If the parameter specifies a folder name, then the link contains a link to a subfolder in the current note folder.
+- Use [[WikiLinks]] - if the option is enabled, then a wiki link is generated, otherwise a markdown link

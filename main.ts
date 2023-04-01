@@ -44,8 +44,14 @@ export default class MyPlugin extends Plugin {
         if (this.settings.wikiLinks) {
             console.log("Create wiki links")
             var cur_text_link = cur_text.trim()
-            var cur_onlypath = cur_file.parent.path
-            var subfolder_link = cur_onlypath + "/" + this.settings.subFolders.trim()
+            var cur_onlypath = cur_file.parent.path          
+
+            var subfolder_link = cur_onlypath
+            if (this.settings.subFolders.trim()!='' ){
+                subfolder_link = subfolder_link + "/" + this.settings.subFolders.trim()
+            }   
+
+            
             console.log("subfolder_link: ", subfolder_link)
 
             cur_text = `[[${subfolder_link}/${cur_text_link}|${cur_text}]]`
@@ -56,7 +62,10 @@ export default class MyPlugin extends Plugin {
             var cur_onlypath = cur_file.parent.path.split(' ').join('%20');
             console.log("Current File: ")
             console.log(cur_onlypath)
-            var subfolder_link = cur_onlypath + "/" + encodeURIComponent(this.settings.subFolders.trim())
+            var subfolder_link = cur_onlypath
+            if (this.settings.subFolders.trim()!='' ){
+                subfolder_link = subfolder_link + "/" + encodeURIComponent(this.settings.subFolders.trim())
+            }           
 
             cur_text = `[${cur_text}](${subfolder_link}/${cur_text_link})`
         }
@@ -85,7 +94,10 @@ export default class MyPlugin extends Plugin {
                     console.log("Create wiki links")
                     var cur_text_link = cur_text.trim()
                     var cur_onlypath = cur_file.parent.path
-                    var subfolder_link = cur_onlypath + "/" + this.settings.subFolders.trim()
+                    var subfolder_link = cur_onlypath
+                    if (this.settings.subFolders.trim()!='' ){
+                        subfolder_link = subfolder_link + "/" + this.settings.subFolders.trim()
+                    }        
                     console.log("subfolder_link: ", subfolder_link)
 
                     cur_text = `[[${subfolder_link}/${cur_text_link}|${cur_text}]]\n`
@@ -96,7 +108,10 @@ export default class MyPlugin extends Plugin {
                     var cur_onlypath = cur_file.parent.path.split(' ').join('%20');
                     console.log("Current File: ")
                     console.log(cur_onlypath)
-                    var subfolder_link = cur_onlypath + "/" + encodeURIComponent(this.settings.subFolders.trim())
+                    var subfolder_link = cur_onlypath
+                    if (this.settings.subFolders.trim()!='' ){
+                        subfolder_link = subfolder_link + "/" + encodeURIComponent(this.settings.subFolders.trim())
+                    }        
 
                     cur_text = `[${cur_text}](${subfolder_link}/${cur_text_link})\n`
                 }
